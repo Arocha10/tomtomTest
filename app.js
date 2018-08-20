@@ -32,6 +32,8 @@ class Book {
     }
       show+= aux.slice(0, -3);
       show+=" ] "
+      show += "\n"
+
     console.log(show);
   }
 
@@ -52,6 +54,43 @@ class AvailableBook extends Book {
     this.price_amount = price_amount
     this.buy_link = buy_link
   }
+
+  getPrice() {
+    return this.price_amount
+  }
+
+  getBuyLink() {
+    return this.buy_link
+  }
+
+  show() {
+    var show = ""
+    show += this.title + " ";
+    if(this.s_title){
+      show += "( " + this.s_title + ")" ;
+    }
+    show+= ", ";
+    show+= this.authors;
+    show+= ", ";
+    show+= this.publish_date;
+    show+= ", ";
+    if(this.s_title){
+      show += "( " + this.s_title + ")" ;
+      show+= ", ";
+    }
+    show+="[ "
+    var aux = ""
+    for (var j in this.categories) {
+      aux+= this.categories[j] + ", ";
+    }
+      show+= aux.slice(0, -3);
+      show+=" ] - "
+      show += this.getPrice() + "$ at "
+      show += this.getBuyLink();
+      show += "\n"
+    console.log(show);
+  }
+
 }
 
 
@@ -120,6 +159,13 @@ request('https://www.googleapis.com/books/v1/volumes?q=javascript', function(err
       var categories = library.items[i].volumeInfo.categories;
 
       var temp = new Book(title, s_title, authors, publish_date, publisher, categories);
+      if(library.items[i].saleInfo.listPrice){
+        var price_amount = library.items[i].saleInfo.listPrice.amount;
+        var buy_link = library.items[i].saleInfo.buyLink;
+        var temp = new AvailableBook(title, s_title, authors, publish_date, publisher, categories, price_amount, buy_link);
+      }else{
+        var temp = new Book(title, s_title, authors, publish_date, publisher, categories);
+      }
       result.push(temp);
 
       // Calculando el averageRating
@@ -128,10 +174,14 @@ request('https://www.googleapis.com/books/v1/volumes?q=javascript', function(err
       }
 
     }
-
+    console.log("Tenemos primero todos nuestros libros sobre Javascript \n\n")
     showBooks(result);
-    console.log("--------------------------------------------------");
+    console.log("--------------------------------------------------\n");
+    console.log("Luego tenemos el arreglo ordenado por la fecha de publicacion \n\n")
     sort(result);
     console.log("--------------------------------------------------");
+    console.log("Por ultimo, la valoracion promedio vale acotar que se calculo ")
+    console.log("solo para aquellos que tuvieran este valor y si pertenecen a la categoria 'Computacion'\n")
+
     calcAverageRating(averageRating);
 });
