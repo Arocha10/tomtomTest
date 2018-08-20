@@ -130,21 +130,16 @@ function calcAverageRating(averageRating){
       console.log("El promedio del rating de los libros seria " + result);
     }
 
-http = require('http');
-http.createServer(function (req, res) {
-res.writeHead(200, {'Content-Type': 'text/plain'});
-res.end('It is working!\n');
-}).listen(3000);
-console.log('Server running at port 3000');
+var http = require('http'),
+        fs = require('fs');
+
 
 var request = require('request');
 var result = [];
 var averageRating = [];
 request('https://www.googleapis.com/books/v1/volumes?q=javascript', function(error, response, body) {
     var library = JSON.parse(body);
-    //console.log(library.items);
     for (var i in library.items) {
-      //console.log(library.items[i].volumeInfo.title);
       var title = library.items[i].volumeInfo.title;
       var s_title = library.items[i].volumeInfo.subtitle;
       var all = '';
@@ -184,4 +179,22 @@ request('https://www.googleapis.com/books/v1/volumes?q=javascript', function(err
     console.log("solo para aquellos que tuvieran este valor y si pertenecen a la categoria 'Computacion'\n")
 
     calcAverageRating(averageRating);
+
+    http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write('<html>');
+    res.write('<body>');
+    res.write('<h1>Javascript Library</h1>');
+    res.write('<ul>');
+    for (var i in library.items) {
+    res.write('<li>' + library.items[i].volumeInfo.title + '</li>');
+  }
+    res.write('</ul>');
+    res.write('</body>');
+    res.write('</html>');
+    res.end();
+    res.end();
+    }).listen(3000);
+
+    console.log('Server running at port 3000');
 });
